@@ -28,12 +28,7 @@ from discord_slash.model import SlashCommandPermissionType
 import sqlite3
 TOKEN =  ""
 list_status=["s'occupe de l'administratif"]
-
-botstatus = list_status[randint(0,len(list_status)-1)]
-
-bot = discord.Client( intents=discord.Intents.all())
-slash = SlashCommand(bot, sync_commands=True)
-
+MOTS_BANNIS = ["nitro","everyone","here"]
 SERVEUR_ID = 779715258545078282 # ID du serveur
 WEBHOOK_LOGS = ""
 CHANNEL_SERVICE = 925232806941048882
@@ -41,7 +36,16 @@ ROLE_SAPEURS = 791275596830867457
 EMOJI_PROMOTION = 'spfrat'
 EMOJI_DECES = 'spfrat'
 
-MOTS_BANNIS = ["nitro","everyone","here"]
+
+
+botstatus = list_status[randint(0,len(list_status)-1)]
+
+bot = discord.Client( intents=discord.Intents.all())
+slash = SlashCommand(bot, sync_commands=True)
+
+
+
+
 def send_logs_private(content,title="Logs du serveur de FratLite",footer="Logs de M.A.R.I.O.N"):
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y à %H:%M")
@@ -54,17 +58,17 @@ def send_logs_private(content,title="Logs du serveur de FratLite",footer="Logs d
     webhook.add_embed(embed)
     try:
         response = webhook.execute()
-        #return log_event(str(dt_string)+" Envoie d'un message sur l'intra des Sapeurs Pompiers avec pour titre : "+str(title)+" pour contenu : \n"+str(content)+" et pour footer "+str(footer))
+        return log_event(str(dt_string)+" Envoie d'un message sur l'intra des Sapeurs Pompiers avec pour titre : "+str(title)+" pour contenu : \n"+str(content)+" et pour footer "+str(footer))
 
     except:
         pass
-        #return log_event(str(dt_string)+" Erreur lors de l'envoie d'un message sur l'intra des Sapeurs Pompiers avec pour titre : "+str(title)+" pour contenu : \n"+str(content)+" et pour footer "+str(footer))
+        return log_event(str(dt_string)+" Erreur lors de l'envoie d'un message sur l'intra des Sapeurs Pompiers avec pour titre : "+str(title)+" pour contenu : \n"+str(content)+" et pour footer "+str(footer))
 
 def log_event(logs):
     f = open("/home/pi/bot-sapeurs/logs.txt","a")
     f.write(logs+"\n")
     f.close()
-    journal.write(logs)
+    #journal.write(logs)
     data = {
     "content" : "",
     "username" : "Secrétaire du CSP",
@@ -139,26 +143,8 @@ def push_worktime(agent,h,m):
 async def on_ready():
     await bot.change_presence(activity=discord.Game(status=discord.Status.offline,name=botstatus))
     print('Bot connecté au compte : {0.user}'.format(bot))
-    journal.write('Bot connecté au compte : {0.user}'.format(bot))
-    text_channel_list = []
-    for guild in bot.guilds:
-        for channel in guild.text_channels:
-            text_channel_list.append(channel)
-            print(str(channel.name)+str(channel.id))
-    message = "Bonsoir à toutes et tous, je suis au regret de vous annoncer la désactivation du secrétaire de gestion des temps de service du CSP\n\nEn effet à partir de ce soir vous perdrez l'accès aux commandes suivantes\n```/pds``` ```/fds```\n\nCe bot est fait de mes mains et autohéberger sur mon serveur personnel des suites d'evenement liés aux staffs du serveur j'arrête donc de m'investir.\n\n L'intégralité du code source sera remis au commandant, libre à lui de s'en servir ou de le jeter.\n\n je vous souhaites à toutes et tous un bon RP et une bonne santé\n\nUn codeur parmi tant d'autres."
-    embed = discord.Embed(
-    title='Arrêt du secrétaire de gestion des temps de service',
-    description=message,
-    color=discord.Color.red())
-    embed.set_author(name="Secrétaire du CSP de FratLite",
-    icon_url="https://cdn.discordapp.com/avatars/929423911232372756/2c489781c793afd9545f18d9ccf40b94.webp?size=128")
-    try:
-        channel = bot.get_channel(925232806941048882)
-        #await channel.send(embed=embed)
-        #print("MESSAGE DE DESACTIVATION ENVOYE !")
-    except Exception as Error:
-        print("Une erreur s'est produite : "+str(Error))
-    
+    #journal.write('Bot connecté au compte : {0.user}'.format(bot))
+  
 @bot.event
 async def on_message(message):
     print("Message de "+str(message.author.display_name)+" dans le channel "+str(message.channel.name)+" : "+str(message.content))
@@ -186,100 +172,84 @@ async def on_message(message):
 @slash.slash(name="pds", description="Prendre son service")
 async def _pds(ctx):
     await ctx.defer(hidden=False)
-    message = "Bonsoir à toutes et tous, je suis au regret de vous annoncer la désactivation du secrétaire de gestion des temps de service du CSP\n\nEn effet à partir de ce soir vous perdrez l'accès aux commandes suivantes\n```/pds``` ```/fds```\n\nCe bot est fait de mes mains et autohéberger sur mon serveur personnel des suites d'evenement liés aux staffs du serveur j'arrête donc de m'investir.\n\n L'intégralité du code source sera remis au commandant, libre à lui de s'en servir ou de le jeter.\n\n je vous souhaites à toutes et tous un bon RP et une bonne santé\n\nUn codeur parmi tant d'autres."
-    embed = discord.Embed(
-    title='Arrêt du secrétaire de gestion des temps de service',
-    description=message,
-    color=discord.Color.red())
-    embed.set_author(name="Secrétaire du CSP de FratLite",
-    icon_url="https://cdn.discordapp.com/avatars/929423911232372756/2c489781c793afd9545f18d9ccf40b94.webp?size=128")
-    await ctx.send(ctx.author.mention,embed=embed)
-    # if not ctx.guild or not ctx.guild.id == SERVEUR_ID:
-    #     await ctx.send("Cette commande est réservée au serveur de FratLite !")
-    # else:
-    #     role = get(ctx.guild.roles, id = ROLE_SAPEURS)
-    #     if False:
-    #         await ctx.send("Vous n'êtes pas un membre du SAMU, vous ne pouvez utiliser cette commande !")
-    #     else:
-    #         now = datetime.now()
-    #         dt_string = now.strftime("%d/%m/%Y à %H:%M")
-    #         timestamp = time.time()
-    #         emoji = get(ctx.guild.emojis, name="SamuFRaternity")
-    #         data = {}
-    #         data[ctx.author.id] =[]
-    #         data[ctx.author.id].append({
-    #             'timestamp' : str(timestamp),
-    #             'date' : str(dt_string),
-    #         })
-    #         with open("/home/pi/bot-sapeurs/pds/"+str(ctx.author.id)+'.json', 'w') as outfile:
-    #             json.dump(data, outfile)
-    #         message = "Prise de service d'"+str(ctx.author.mention)+"\nHeure de prise de service : "+str(dt_string)
-    #         embed = discord.Embed(
-    #         title='Prise de service',
-    #         description=message,
-    #         color=discord.Color.red())
-    #         embed.set_author(name="Secrétaire du CSP de FratLite",
-    #         icon_url="https://cdn.discordapp.com/avatars/929423911232372756/2c489781c793afd9545f18d9ccf40b94.webp?size=128")
-    #         await ctx.send("PDS enregistrée !",hidden=True)
-    #         channel = bot.get_channel(CHANNEL_SERVICE)
-    #         embed_send = await channel.send(embed=embed)
-    #         emoji = get(ctx.guild.emojis, name=EMOJI_PROMOTION)
-    #         await embed_send.add_reaction(emoji)
-    #         log_event(str(dt_string)+" Prise de service de <@"+str(ctx.author.id)+">")
+    if not ctx.guild or not ctx.guild.id == SERVEUR_ID:
+        await ctx.send("Cette commande est réservée au serveur de FratLite !")
+    else:
+        role = get(ctx.guild.roles, id = ROLE_SAPEURS)
+        if False:
+            await ctx.send("Vous n'êtes pas un membre du SAMU, vous ne pouvez utiliser cette commande !")
+        else:
+            now = datetime.now()
+            dt_string = now.strftime("%d/%m/%Y à %H:%M")
+            timestamp = time.time()
+            emoji = get(ctx.guild.emojis, name="SamuFRaternity")
+            data = {}
+            data[ctx.author.id] =[]
+            data[ctx.author.id].append({
+                'timestamp' : str(timestamp),
+                'date' : str(dt_string),
+            })
+            with open("/home/pi/bot-sapeurs/pds/"+str(ctx.author.id)+'.json', 'w') as outfile:
+                json.dump(data, outfile)
+            message = "Prise de service d'"+str(ctx.author.mention)+"\nHeure de prise de service : "+str(dt_string)
+            embed = discord.Embed(
+            title='Prise de service',
+            description=message,
+            color=discord.Color.red())
+            embed.set_author(name="Secrétaire du CSP de FratLite",
+            icon_url="https://cdn.discordapp.com/avatars/929423911232372756/2c489781c793afd9545f18d9ccf40b94.webp?size=128")
+            await ctx.send("PDS enregistrée !",hidden=True)
+            channel = bot.get_channel(CHANNEL_SERVICE)
+            embed_send = await channel.send(embed=embed)
+            emoji = get(ctx.guild.emojis, name=EMOJI_PROMOTION)
+            await embed_send.add_reaction(emoji)
+            log_event(str(dt_string)+" Prise de service de <@"+str(ctx.author.id)+">")
             
 @slash.slash(name="fds", description="Prendre sa fin service")
 async def _fds(ctx):
     await ctx.defer(hidden=False)
-    message = "Bonsoir à toutes et tous, je suis au regret de vous annoncer la désactivation du secrétaire de gestion des temps de service du CSP\n\nEn effet à partir de ce soir vous perdrez l'accès aux commandes suivantes\n```/pds``` ```/fds```\n\nCe bot est fait de mes mains et autohéberger sur mon serveur personnel des suites d'evenement liés aux staffs du serveur j'arrête donc de m'investir.\n\n L'intégralité du code source sera remis au commandant, libre à lui de s'en servir ou de le jeter.\n\n je vous souhaites à toutes et tous un bon RP et une bonne santé\n\nUn codeur parmi tant d'autres."
-    embed = discord.Embed(
-    title='Arrêt du secrétaire de gestion des temps de service',
-    description=message,
-    color=discord.Color.red())
-    embed.set_author(name="Secrétaire du CSP de FratLite",
-    icon_url="https://cdn.discordapp.com/avatars/929423911232372756/2c489781c793afd9545f18d9ccf40b94.webp?size=128")
-    await ctx.send(ctx.author.mention,embed=embed)
-    # if not ctx.guild or not ctx.guild.id == SERVEUR_ID:
-    #     await ctx.send("Cette commande est réservée au serveur de FratLite !")
-    # else:
-    #     role = get(ctx.guild.roles, id = ROLE_SAPEURS)
-    #     if False:
-    #         await ctx.send("Vous n'êtes pas un membre du SAMU, vous ne pouvez utiliser cette commande !")
-    #     else:
-    #         now = datetime.now()
-    #         dt_string = now.strftime("%d/%m/%Y à %H:%M")
-    #         timestamp = time.time()
-    #         emoji = get(ctx.guild.emojis, name="SamuFRaternity")
-    #         with open ("/home/pi/bot-sapeurs/pds/"+str(ctx.author.id)+".json") as js_file:
-    #             data =  json.load(js_file)
-    #             for p in data:
-    #                 i = data[p]
-    #                 for x in i:
-    #                     T = x['timestamp']
-    #                     D = x['date']
-    #             heures = ((timestamp - float(T)) / 60.0 )/60.0
-    #             minutes = floor((heures % 1) * 60)
-    #             heures = floor(heures)
-    #             h2 = heures
-    #             m2 = minutes
-    #             if heures < 10:
-    #                 heures = "0"+str(heures)
-    #             if minutes < 10:
-    #                 minutes = "0"+str(minutes)
-    #             message = "Fin de service d'<@"+str(ctx.author.id)+"> \nPrise de service : "+str(D)+"\nFin de service :"+str(dt_string)+"\n\nTemps total de service : "+str(heures)+":"+str(minutes)
-    #         embed = discord.Embed(
-    #         title='Fin de service',
-    #         description=message,
-    #         color=discord.Color.red())
-    #         embed.set_author(name="Secrétaire du CSP de FratLite",
-    #         icon_url="https://cdn.discordapp.com/avatars/929423911232372756/2c489781c793afd9545f18d9ccf40b94.webp?size=128")
-    #         await ctx.send("FDS enregistrée !",hidden=True)
-    #         channel = bot.get_channel(CHANNEL_SERVICE)
-    #         embed_send = await channel.send(embed=embed)
-    #         emoji = get(ctx.guild.emojis, name=EMOJI_PROMOTION)
-    #         await embed_send.add_reaction(emoji)
-    #         log_event(str(dt_string)+" Fin de service de <@"+str(ctx.author.id)+">")
-    #         push_worktime(ctx.author.id,h2,m2)
-    #         await channel.send("Google Sheets mis à jour !")
+    if not ctx.guild or not ctx.guild.id == SERVEUR_ID:
+        await ctx.send("Cette commande est réservée au serveur de FratLite !")
+    else:
+        role = get(ctx.guild.roles, id = ROLE_SAPEURS)
+        if False:
+            await ctx.send("Vous n'êtes pas un membre du SAMU, vous ne pouvez utiliser cette commande !")
+        else:
+            now = datetime.now()
+            dt_string = now.strftime("%d/%m/%Y à %H:%M")
+            timestamp = time.time()
+            emoji = get(ctx.guild.emojis, name="SamuFRaternity")
+            with open ("/home/pi/bot-sapeurs/pds/"+str(ctx.author.id)+".json") as js_file:
+                data =  json.load(js_file)
+                for p in data:
+                    i = data[p]
+                    for x in i:
+                        T = x['timestamp']
+                        D = x['date']
+                heures = ((timestamp - float(T)) / 60.0 )/60.0
+                minutes = floor((heures % 1) * 60)
+                heures = floor(heures)
+                h2 = heures
+                m2 = minutes
+                if heures < 10:
+                    heures = "0"+str(heures)
+                if minutes < 10:
+                    minutes = "0"+str(minutes)
+                message = "Fin de service d'<@"+str(ctx.author.id)+"> \nPrise de service : "+str(D)+"\nFin de service :"+str(dt_string)+"\n\nTemps total de service : "+str(heures)+":"+str(minutes)
+            embed = discord.Embed(
+            title='Fin de service',
+            description=message,
+            color=discord.Color.red())
+            embed.set_author(name="Secrétaire du CSP de FratLite",
+            icon_url="https://cdn.discordapp.com/avatars/929423911232372756/2c489781c793afd9545f18d9ccf40b94.webp?size=128")
+            await ctx.send("FDS enregistrée !",hidden=True)
+            channel = bot.get_channel(CHANNEL_SERVICE)
+            embed_send = await channel.send(embed=embed)
+            emoji = get(ctx.guild.emojis, name=EMOJI_PROMOTION)
+            await embed_send.add_reaction(emoji)
+            log_event(str(dt_string)+" Fin de service de <@"+str(ctx.author.id)+">")
+            push_worktime(ctx.author.id,h2,m2)
+            await channel.send("Google Sheets mis à jour !")
 
  
 bot.run(TOKEN)
