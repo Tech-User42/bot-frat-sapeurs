@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "bot-fratlite",
+  "private_key_id": "5d9d31621b18ae6827d557535181cb482e60820f",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDhTEbaIATD8zxr\ngv8H3HJn98pnNcN8HMUbM9d13nSDCrV0ZOd8n9ds4hL7SDzX7NVX1CKQDZWrTGEp\niwK81oQcR7PaBWWzWl4IeP4NzoqSyhJ4BaAfXf6yQbXfD0zWBLV+GZtW1vWvOgFy\naGf58fGOwAwnGNAUdoquYeeH9B9vp1S7wvzNW7jt/b4RpmCnmAJ/lez1Nc5GL8x0\nm4WoqulC6+LhwDMh1Y2MXsXx3cCuIWjvHbJxn1xxKTfdPE71C9Z7Sbwk3FwcjAwN\nJbPTWK1HsI6o8dzqsph7qHnL909IQbrwbk6HuWaWRJHfayOW1JEDfPXwGbA4zoZH\ngny5A+0FAgMBAAECggEAGf9ty5zXP+9RAQ0ANd2D3Ch1VDyZfrhpLE7qpYDSjA6P\nysscBT8Col9iFloLH1WGdtiVVm8i3r31FlCis7zDSOojQFzQFAaxBCRGGLzFM9Qa\nlnv7srLrgZFglclTsfygHtmAmeA7QImegh+3I9n96F2T6W0NEdduAFpu17rdZ8o9\naCOfQ7Hi7UIGDlSeL+QwirppDdFw37Vja7Gxk6tM7QxslHdlnWqZod1hRUXxDtg4\nYp/zDOCtZrPzz8pcNP0MbfGmodxJcJ5A+TW9VmJH+0fa7W325qtAmJtIP+Ju79an\nxvloMCug5lIjWUpuqch14A0pSqZbE7j7abcgENaDYQKBgQDzP8/RIIM7jslwevfX\nS3PEpHz4mbVMl+Okq3juR7WsCg4cl/Kzcg9YV2kP6evYiGYRmzqSYjy33C+JMA8M\nEvFeKR56NC1dL2xU2DksCplNNSZvRZFs8D+dgvxcVjif/B7TaMI3eDZNwpu5xC4Y\nyjrK3wrdj177Lrbvn146lNBqMQKBgQDtG5MNo24OrGdbZ6O8x5buj+YIX2l23D3d\npg+1yCQEshe5ObUOMJIo7953tKnpNDpGhpoaKK5xfM98e9mHwjlLWZAQYa6HVUK7\nTdB3VAqY6BQk3MmvyIwWyPI50la3eu68WSvbKIAh85Ak2X1lG2b1OqJJq/EZM9zR\ncyEZxmnnFQKBgQDGseAyZglsc+UtwPSD43ksLmR6uSuz5fooP3znvqGyZwBB8Qhp\n9gh80+HZAu4IkNo3FYJRoncQhIY73IreBPcuQA5KKibIEH3ADGMfC4VP4NOFXuE8\niD6ejilPz4ovfMU9UTwcDVDmUcncg1hYHZDKuEhq1Lr0GKOLtrVEytw3cQKBgQDQ\nsjiZBIRWfgDrPymre7GpgRbjv7dAW1JIyWWChwrM50RiUBzAxJehWJ/jlS0IimPQ\nt6Dj7XK9iTHHS+uHxrhPTiGziYbor27xFeirX1mEhKFWYM9U3ZwQYgZyRmT1UkrX\nlVU4rUk6mPsCtDvexmO07UrytVic6j0uTbuQyEdmkQKBgHiV59v/xXGv8d+VUP8V\nfpgkfHtiuxnVaba+NNd6SbfTR/RWZMM3n6YU0s2O83R5IKtUkmKgcAu/JSU4i/dp\nWbVCSZp3jgpVQd4gRcAcSudfoSmVYo28diyO8H/yzu6S60u4cyfnXUOMOvVOtxns\nmdNliIvD5KUAq75FuydhQSMP\n-----END PRIVATE KEY-----\n",
+  "client_email": "pythonsheets@bot-fratlite.iam.gserviceaccount.com",
+  "client_id": "110956300966943037588",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/pythonsheets%40bot-fratlite.iam.gserviceaccount.com"
+}
