@@ -1,54 +1,73 @@
+##############################################################
+############# IMPORTATION DES MODULES DE DISCORD #############
+##############################################################
 import discord
 from discord import Member
-from discord import FFmpegPCMAudio
-from discord_slash import SlashCommand 
-import time 
 from discord.ext import commands
-from datetime import datetime
-from discord_slash.utils.manage_commands import create_option
-from discord_slash.utils.manage_components import create_button, create_actionrow
-from discord_slash.model import ButtonStyle
 from discord.utils import get
-from discord_slash.utils.manage_components import wait_for_component
-from systemd import journal
+from discord_webhook import DiscordWebhook, DiscordEmbed # MODULE POUR FAIRE DES WEBHOOK AVEC EMBED
+##############################################################
+############# IMPORTATION DES MODULES DE PYTHON ##############
+##############################################################
+import time
+from datetime import datetime 
+import os 
 from random import randint
 import requests
 import json
 from math import floor 
+import sqlite3
+##############################################################
+############# IMPORTATION DES MODULES DE GOOGLE ##############
+##############################################################
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import pprint
-from datetime import datetime as date
-import os 
-from discord_slash.context import MenuContext
-from discord_slash.model import ContextMenuType
-from discord_webhook import DiscordWebhook, DiscordEmbed
-from discord_slash.utils.manage_commands import create_permission
-from discord_slash.model import SlashCommandPermissionType
-import sqlite3
-TOKEN =  ""
-list_status=["s'occupe de l'administratif"]
-MOTS_BANNIS = ["nitro","everyone","here"]
-SERVEUR_ID = 779715258545078282 # ID du serveur
-WEBHOOK_LOGS = ""
-CHANNEL_SERVICE = 925232806941048882
-ROLE_SAPEURS = 791275596830867457
-EMOJI_PROMOTION = 'spfrat'
-EMOJI_DECES = 'spfrat'
+##############################################################
+############# DEFINITION DES CONSTANTES DU BOT ###############
+##############################################################
+
+
+PREFIX = "!" # Prefix à mettre devant la commande Ex : !pds .
+
+TOKEN =  "ODg4MTQ5NTE4Mzg4OTgxODEz.YUOfsg.JdKBiGl5vJy8LznlT5TEshPBx7s" # Token du bot NE JAMAIS PARTAGER VOTRE TOKEN DE BOT !
 
 
 
-botstatus = list_status[randint(0,len(list_status)-1)]
 
-bot = discord.Client( intents=discord.Intents.all())
-slash = SlashCommand(bot, sync_commands=True)
+LISTE_STATUS=["s'occupe de l'administratif","gère le CSP"] # Liste des status apparaissant sur le bot. 
+
+botstatus = LISTE_STATUS[randint(0,len(LISTE_STATUS)-1)] # Prend un status aléatoire dans LISTE_STATUS.
+
+MOTS_BANNIS = ["nitro","everyone","here"] # Liste de mot que le bot detectera et supprimera automatiquement.
+
+SERVEUR_ID = 850334186560421918 # ID du serveur
+
+WEBHOOK_LOGS = "https://discord.com/api/webhooks/932353627861962872/psG8oPeJ_-x-YcqF5nOR10BffqIUwVDwMSopRJq2vnAzydac-KU83WJcjM_WbzJPZL7I" # Lien du webhook servant aux logs du bot.
+
+CHANNEL_SERVICE = 850334230533767198 #ID Du channel d'annonce de Prise et fin de service.
+
+ROLE_SAPEURS = 850700741773754419 #ID du rôle des sapeurs pompiers, rôles nécessaire pour executer les commandes.
+
+EMOJI_SP = '❌' # Nom de l'emoji qui sera ajouté en dessous des messages du bot.
+
+URL_AVATAR_WEBHOOK = "https://cdn.discordapp.com/avatars/929423911232372756/2c489781c793afd9545f18d9ccf40b94.webp?size=128" # Url de l'image de profile du webhook.
+
+DELETE_TRIG_COMMAND = True # Défini si les messages contenant les commadnes doivent être éffacés.
+
+
+bot = discord.Client()
+
+
+
 
 
 
 
 def send_logs_private(content,title="Logs du serveur de FratLite",footer="Logs de M.A.R.I.O.N"):
     now = datetime.now()
+
     dt_string = now.strftime("%d/%m/%Y à %H:%M")
+
     webhook = DiscordWebhook(url="h")
     
     embed = DiscordEmbed(title=title, description=str(dt_string)+" "+str(content), color='FF0000')
@@ -61,10 +80,10 @@ def send_logs_private(content,title="Logs du serveur de FratLite",footer="Logs d
         return log_event(str(dt_string)+" Envoie d'un message sur l'intra des Sapeurs Pompiers avec pour titre : "+str(title)+" pour contenu : \n"+str(content)+" et pour footer "+str(footer))
 
     except:
-        pass
         return log_event(str(dt_string)+" Erreur lors de l'envoie d'un message sur l'intra des Sapeurs Pompiers avec pour titre : "+str(title)+" pour contenu : \n"+str(content)+" et pour footer "+str(footer))
 
 def log_event(logs):
+    print(logs)
     f = open("/home/pi/bot-sapeurs/logs.txt","a")
     f.write(logs+"\n")
     f.close()
@@ -72,7 +91,7 @@ def log_event(logs):
     data = {
     "content" : "",
     "username" : "Secrétaire du CSP",
-    "avatar_url": "https://cdn.discordapp.com/avatars/929423911232372756/2c489781c793afd9545f18d9ccf40b94.webp?size=128"
+    "avatar_url": URL_AVATAR_WEBHOOK
     }
 
     #leave this out if you dont want an embed
@@ -92,12 +111,12 @@ def log_event(logs):
         print(err)
     else:
         print("Logs envoyé avec succès , code {}.".format(result.status_code))
-    send_logs_private(logs)
+    #send_logs_private(logs)
 
 def push_worktime(agent,h,m):
     try:
         found = False
-        today = date.today().strftime("%A")
+        today = datetime.today().strftime("%A")
         print(today)
         days = {"Monday":5,"Tuesday":6,"Wednesday":7,"Thursday":8,"Friday":9,"Saturday":10,"Sunday":11}
         scope = [
@@ -130,50 +149,66 @@ def push_worktime(agent,h,m):
                 try:
                     os.system("rm /home/pi/bot-sapeurs/pds/"+str(agent)+'.json')
                     log_event("Suppression du timestamp de l'agent <@"+str(agent)+">")
-                except:
-                    log_event("Echec de la suppression du timestamp de l'agent <@"+str(agent)+">")
+                except Exception as e:
+                    log_event("Echec de la suppression du timestamp de l'agent <@"+str(agent)+"> avec le code d'erreur suivant "+str(e))
+                    return e
         if not found:
-            print("Echec de la mise à jour du Google Sheets pour l'agent <@"+str(agent)+"> Code d'erreur : Agent introuvable")
-            log_event("Echec de la mise à jour du Google Sheets pour l'agent <@"+str(agent)+"> Code d'erreur : Agent introuvable")           
+            log_event("Echec de la mise à jour du Google Sheets pour l'agent <@"+str(agent)+"> Code d'erreur : Agent introuvable")
+            return "Agent Introuvable sur la feuille d'heure, merci de vérifier son enregistrement."
+        else:
+            return None           
     except Exception as e:
-        print("Echec de la mise à jour du Google Sheets pour l'agent <@"+str(agent)+"> Code d'erreur "+str(e))
         log_event("Echec de la mise à jour du Google Sheets pour l'agent <@"+str(agent)+"> Code d'erreur "+str(e))
+        return e
     
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Game(status=discord.Status.offline,name=botstatus))
+    await bot.change_presence(activity=discord.Game(status=discord.Status.online,name=botstatus))
     print('Bot connecté au compte : {0.user}'.format(bot))
-    #journal.write('Bot connecté au compte : {0.user}'.format(bot))
   
 @bot.event
 async def on_message(message):
-    print("Message de "+str(message.author.display_name)+" dans le channel "+str(message.channel.name)+" : "+str(message.content))
-    if not message.content  == "":
-        print("Message de "+str(message.author.display_name)+" dans le channel "+str(message.channel.name)+" : "+str(message.content))
-        send_logs_private("Message de "+str(message.author.display_name)+" dans le channel "+str(message.channel.name)+" : "+str(message.content))
+    log_event("Message de "+str(message.author.display_name)+" dans le channel "+str(message.channel.name)+" : "+str(message.content))
+    if not message.content == "" and message.author.id != bot.user.id :
+        ##############################################################
+        ############# Gestion des suppresions de messages ############
+        ##############################################################
         for mot in MOTS_BANNIS:
             if  mot in message.content.lower():
                 await message.delete()
                 channel = bot.get_channel(message.channel.id)
                 await channel.send("<@"+str(message.author.id)+"> Ton message à été supprimé car il contenait un mot interdit par la direction du CSP !")
+        ##############################################################
+        ############# Gestion des commandes de service ###############
+        ##############################################################
+        if message.content.lower() == str(PREFIX)+"pds": # Trigger de la pds si on trouve la commande
+            if DELETE_TRIG_COMMAND:
+                await message.delete()
+            await _pds(message)
+        elif message.content.lower() == str(PREFIX)+"fds": # Trigger de la fds si on trouve la commande
+            if DELETE_TRIG_COMMAND:
+                await message.delete()
+            await _fds(message)
+        ##############################################################
+        ############# Gestion du service en automatique ##############
+        ##############################################################
         if message.channel.id == 779715261665771546: 
             if "a commencer son service" in message.content :
                 name = message.content.split("Le joueur ")[1]
                 name = name.split(" a commencer son service")[0]
-                print(f"Prise de service automatique détectée pour le joueur {name}, le module de prise en charge automatique des prises de service et en développement :wink:")
                 log_event(f"Prise de service automatique détectée pour le joueur {name}, le module de prise en charge automatique des prises de service et en développement :wink:")
         if message.channel.id == 779715261665771546:
             if "a finit son service" in message.content :
                 name = message.content.split("Le joueur ")[1]
                 name = name.split(" a finit son service")[0]
-                print(f"Prise de service automatique détectée pour le joueur {name}, le module de prise en charge automatique des fins de service est en développement :wink:")
                 log_event(f"Fin de service automatique détectée pour le joueur {name}, le module de prise en charge automatique des fins de service est en développement :wink:")
+        
 
-@slash.slash(name="pds", description="Prendre son service")
+
 async def _pds(ctx):
-    await ctx.defer(hidden=False)
     if not ctx.guild or not ctx.guild.id == SERVEUR_ID:
-        await ctx.send("Cette commande est réservée au serveur de FratLite !")
+        channel = bot.get_channel(message.channel.id)
+        await channel.send("Cette commande est réservée au serveur de FratLite !")
     else:
         role = get(ctx.guild.roles, id = ROLE_SAPEURS)
         if False:
@@ -198,18 +233,17 @@ async def _pds(ctx):
             color=discord.Color.red())
             embed.set_author(name="Secrétaire du CSP de FratLite",
             icon_url="https://cdn.discordapp.com/avatars/929423911232372756/2c489781c793afd9545f18d9ccf40b94.webp?size=128")
-            await ctx.send("PDS enregistrée !",hidden=True)
+            channel = bot.get_channel(ctx.channel.id)
+            await channel.send("<@"+str(ctx.author.id)+"> PDS enregistrée !")
             channel = bot.get_channel(CHANNEL_SERVICE)
             embed_send = await channel.send(embed=embed)
-            emoji = get(ctx.guild.emojis, name=EMOJI_PROMOTION)
-            await embed_send.add_reaction(emoji)
+            await embed_send.add_reaction(EMOJI_SP)
             log_event(str(dt_string)+" Prise de service de <@"+str(ctx.author.id)+">")
             
-@slash.slash(name="fds", description="Prendre sa fin service")
 async def _fds(ctx):
-    await ctx.defer(hidden=False)
     if not ctx.guild or not ctx.guild.id == SERVEUR_ID:
-        await ctx.send("Cette commande est réservée au serveur de FratLite !")
+        channel = bot.get_channel(message.channel.id)
+        await channel.send("Cette commande est réservée au serveur de FratLite !")
     else:
         role = get(ctx.guild.roles, id = ROLE_SAPEURS)
         if False:
@@ -242,14 +276,15 @@ async def _fds(ctx):
             color=discord.Color.red())
             embed.set_author(name="Secrétaire du CSP de FratLite",
             icon_url="https://cdn.discordapp.com/avatars/929423911232372756/2c489781c793afd9545f18d9ccf40b94.webp?size=128")
-            await ctx.send("FDS enregistrée !",hidden=True)
+            channel = bot.get_channel(ctx.channel.id)
+            await channel.send("<@"+str(ctx.author.id)+"> FDS enregistrée !")
             channel = bot.get_channel(CHANNEL_SERVICE)
             embed_send = await channel.send(embed=embed)
-            emoji = get(ctx.guild.emojis, name=EMOJI_PROMOTION)
-            await embed_send.add_reaction(emoji)
+            await embed_send.add_reaction(EMOJI_SP)
             log_event(str(dt_string)+" Fin de service de <@"+str(ctx.author.id)+">")
-            push_worktime(ctx.author.id,h2,m2)
-            await channel.send("Google Sheets mis à jour !")
-
- 
+            raise_work = push_worktime(ctx.author.id,h2,m2)
+            if raise_work == None:
+                await channel.send("Google Sheets mis à jour !")
+            else:
+                await channel.send("Le Google Sheet n'as pas été mis à jour à cause de l'erreur suivante "+str(raise_work))
 bot.run(TOKEN)
